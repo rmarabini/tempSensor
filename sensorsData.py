@@ -1,34 +1,39 @@
 #!/usr/bin/env python3
-# /home/pi/Sensors_Database/sensorsData.py
-# collect rapberry pi3 temperature and plot it
+# read temperature from sensor, store it in influx database.
+# 
+# https://medium.com/trabe/monitoring-humidity-and-temperature-with-grafana-influxdb-and-orange-pi-9680046c70c
 # crontab */5 * * * *
 from gpiozero import CPUTemperature
+from influxdb import client as influxdb
+import datetime
 
-# connect to database
-import sqlite3
-import sys
-from time import sleep
+#InfluxDB Connection Details
+influxHost = 'localhost'
+influxPort = '8086'
+influxUser = 'temp'
+influxPasswd = 'celsius'
+influxdbName = 'temperature'
 
 def main():
-    # get temperature
-    while True:
-        cpu = CPUTemperature()  
-        print("Temperature", cpu.temperature)
-        sleep(5)
-    # call the function to insert data
-    #add_data (cpu.temperature, 0)
+
+    cpu = CPUTemperature()  
+    influx_metric = [{
+        'measurement': 'TemperatureSensor',
+        'time': datetime.datetime.utcnow(),
+        'fields': {
+            'temperature': cpu.temperature,
+            #'humidity': humidity
+        }
+    }]
 
 
-# function to insert data on a table
-def add_data (temp, hum):
-    # connect database
-    conn=sqlite3.connect('/home/pi/Sensors_Database/sensorsData.db')
-    curs=conn.cursor()
-    curs.execute("INSERT INTO DHT_data values(datetime('now'), (?), (?))", (temp, hum))
-    conn.commit()
-    # close the database after use
-    conn.close()
-
+    #Saving data to InfluxDB
+    try:
+        db = influxdb.InfluxDBClient(influxHost, influxPort, influxUser, influxPasswd, influxdbName)
+        db.write_points(influx_metric)
+    except Exception as e:
+        pritnt("Error", e.msg)
+    db.close()
 
 main()
 
