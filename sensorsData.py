@@ -3,6 +3,7 @@
 # 
 # https://medium.com/trabe/monitoring-humidity-and-temperature-with-grafana-influxdb-and-orange-pi-9680046c70c
 # crontab */5 * * * *
+# TODO back databse to disk each 24 horus
 from gpiozero import CPUTemperature
 from influxdb import client as influxdb
 import datetime
