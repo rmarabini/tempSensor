@@ -33,7 +33,7 @@ def main():
     # weather outside (madrid)
     owm = OWM(key)
     mgr = owm.weather_manager()
-    one_call = mgr.one_call(lat=40.5453765, lon=-3.69495776559637)
+    one_call = mgr.one_call(lat=40.5443, lon=-3.6159)
     one = one_call.current
 
     #print("The temperature is %s celsius" % temperature)
